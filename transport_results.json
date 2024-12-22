@@ -1,9 +1,4 @@
 {
     "clients": [],
-    "vehicles": [
-        {
-            "type": "Airplane",
-            "capacity": 3.0
-        }
-    ]
+    "vehicles": []
 }
