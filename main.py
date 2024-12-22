@@ -4,7 +4,8 @@ def menu():
     company = TransportCompany("Veterok")
 
     while True:
-        print("--------------Меню--------------")
+        decor = "=" * 22
+        print(f"{decor} Выберите пункт из меню {decor}")
         print("1. Добавить клиента")
         print("2. Добавить транспортное средство")
         print("3. Показать все транспортные средства")
@@ -12,6 +13,7 @@ def menu():
         print("5. Распределить грузы")
         print("6. Удалить клиента")
         print("7. Выйти из программы")
+        print(decor * 2)
 
         choice = input("Выберите пункт из предложенного списка: ")
 
@@ -21,7 +23,7 @@ def menu():
             is_vip_str = input("Это VIP клиент? (Да/Нет): ").strip().lower()
             is_vip = True if is_vip_str == 'да' else False
             company.add_client(Client(name, weight, is_vip))
-            print("Клиент добавлен!")
+            print("Клиент добавлен")
 
         elif choice == "2":
             choice_type_vehicle = input("Выберите вид транспорта (самолет - 1, поезд - 2): ")
@@ -29,11 +31,11 @@ def menu():
             if choice_type_vehicle == "1":
                 max_altitude = float(input("Введите максимальную высоту полета: "))
                 company.add_vehicle(Airplane(capacity, max_altitude))
-                print("Самолет добавлен!")
+                print("Самолет добавлен")
             elif choice_type_vehicle == "2":
                 number_of_cars = int(input("Введите количество вагонов: "))
                 company.add_vehicle(Train(capacity, number_of_cars))
-                print("Поезд добавлен!")
+                print("Поезд добавлен")
             else:
                 print("Введен неправильный тип транспорта")
 
@@ -44,21 +46,21 @@ def menu():
                 for vehicle in vehicles:
                     print(vehicle)
             else:
-                print("Нет транспортных средств!")
+                print("Нет транспортных средств")
 
         elif choice == "4":
-            print("\nКлиенты:")
+            print("\nКлиенты: ")
             clients = company.list_clients()
             if clients:
                 for client in clients:
                     print(f"Имя: {client.name}, Груз: {client.cargo_weight} тонн, VIP: {'да' if client.is_vip else 'нет'}")
             else:
-                print("Нет клиентов!")
+                print("Нет клиентов")
 
         elif choice == "5":
             company.optimize_cargo_distribution()
-            print("\nГрузы успешно распределены!")
-            print("\nРезультат распределения груза:")
+            print("\nГрузы успешно распределены")
+            print("\nРезультат распределения груза: ")
             for vehicle in company.vehicles:
                 print(vehicle)
                 for client in vehicle.clients_list:
