@@ -1,11 +1,11 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk #диалогове окна
 import json
-import re
+import re #регулярные выражения
 
 class Client:
     def __init__(self, name, cargo_weight, is_vip):
-        self.name = name.strip()
+        self.name = name
         self.cargo_weight = cargo_weight
         self.is_vip = is_vip
 
@@ -15,16 +15,16 @@ class TransportCompany:
         self.clients = []
         self.vehicles = []
 
-    def add_client(self, client):
+    def add_client(self, client): #добавляем клиента в компанию
         self.clients.append(client)
 
-    def add_vehicle(self, vehicle):
+    def add_vehicle(self, vehicle): #добавляем транспорт в компанию
         self.vehicles.append(vehicle)
 
-    def remove_vehicle(self, vehicle):
+    def remove_vehicle(self, vehicle): #удаляет транспортное средство из компании
         self.vehicles.remove(vehicle)
 
-    def optimize_cargo_distribution(self):
+    def optimize_cargo_distribution(self): #распределение грузов
         for client in self.clients:
             distributed = False
             for vehicle in self.vehicles:
@@ -44,31 +44,28 @@ class Train:
         self.capacity = capacity
         self.number_of_cars = number_of_cars
 
-class TransportApp:
+class TransportApp: #создаем граф интерфейс
     def __init__(self, root):
         self.root = root
         self.root.title("Транспортная Компания 'Ветерок'")
         self.root.configure(bg="#FFEFDB")  #бежевый фон
         self.company = TransportCompany("Veterok")
         self.load_data()
-
         self.create_menu()
         self.create_widgets()
 
     def create_menu(self):
         menu_bar = tk.Menu(self.root)
         self.root.config(menu=menu_bar)
-
         file_menu = tk.Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="Экспорт результата", command=self.export_results)
         file_menu.add_command(label="О программе", command=self.show_about)
         menu_bar.add_cascade(label="Файл", menu=file_menu)
 
-    def create_widgets(self):
-        frame = tk.Frame(self.root, bg="#ADD8E6")  # Нежно-синий фон
+    def create_widgets(self): #создаем кнопки
+        frame = tk.Frame(self.root, bg="#ADD8E6")  #синий фон
         frame.pack(padx=10, pady=10)
-
-        # Изменение фона таблицы на светло-серый
+        #создаем таблицу
         self.tree_clients = ttk.Treeview(frame, columns=("Имя", "Вес", "VIP"), show="headings",
                                           style="Treeview")
         self.tree_clients.heading("Имя", text="Имя")
@@ -82,9 +79,9 @@ class TransportApp:
         self.tree_vehicles.heading("Грузоподъемность", text="Грузоподъемность")
         self.tree_vehicles.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        control_frame = tk.Frame(self.root, bg="#ADD8E6")  # Нежно-синий фон
+        control_frame = tk.Frame(self.root, bg="#ADD8E6")  #синий фон
         control_frame.pack(pady=10)
-
+        #кнопки управления
         tk.Button(control_frame, text="Добавить клиента", command=self.open_add_client_window).pack(side=tk.LEFT, padx=5)
         tk.Button(control_frame, text="Редактировать клиента", command=self.open_edit_client_window).pack(side=tk.LEFT, padx=5)
         tk.Button(control_frame, text="Удалить клиента", command=self.delete_client).pack(side=tk.LEFT, padx=5)
@@ -94,24 +91,20 @@ class TransportApp:
 
         self.status_bar = tk.Label(self.root, text="", bd=1, relief=tk.SUNKEN, anchor=tk.W, bg="#ADD8E6")  # Нежно-синий фон
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-
+        #добл клик
         self.tree_clients.bind("<Double-1>", self.open_edit_client_window)
         self.tree_vehicles.bind("<Double-1>", self.open_edit_vehicle_window)
-
+        #обновляет таблицу
         self.update_clients()
         self.update_vehicles()
-
-        # Создание стиля для таблицы
+        #стиль таблицы
         style = ttk.Style()
         style.configure("Treeview", background="#D3D3D3", foreground="black", rowheight=25, fieldbackground="#D3D3D3")
-        style.map("Treeview", background=[("selected", "#A9A9A9")])  # Цвет фона для выделенных строк
-
-    # Остальная часть кода остается без изменений...
 
     def open_add_client_window(self):
         self.client_window = tk.Toplevel(self.root)
         self.client_window.title("Добавить клиента")
-        self.client_window.configure(bg="#ADD8E6")  # Нежно-синий фон
+        self.client_window.configure(bg="#ADD8E6")
 
         tk.Label(self.client_window, text="Имя клиента:", bg="#ADD8E6").pack()
         self.client_name_entry = tk.Entry(self.client_window)
@@ -133,7 +126,6 @@ class TransportApp:
         if not selected_item:
             messagebox.showwarning("Предупреждение", "Выберите клиента для редактирования")
             return
-
         selected_client_id = selected_item[0]
         client_data = self.tree_clients.item(selected_client_id)["values"]
 
@@ -171,7 +163,6 @@ class TransportApp:
         except ValueError:
             messagebox.showerror("Ошибка", "Вес груза должен быть положительным числом не более 10 тонн")
             return
-
         is_vip = self.client_is_vip_var.get()
         client = Client(name, weight, is_vip)
         self.company.add_client(client)
@@ -192,14 +183,12 @@ class TransportApp:
         except ValueError:
             messagebox.showerror("Ошибка", "Вес груза должен быть положительным числом не более 10 тонн")
             return
-
         is_vip = self.client_is_vip_var.get()
         client_index = self.tree_clients.index(selected_client_id)
         client = self.company.clients[client_index]
         client.name = name
         client.cargo_weight = weight
         client.is_vip = is_vip
-
         self.update_clients()
         self.export_results()
         self.client_window.destroy()
@@ -221,7 +210,7 @@ class TransportApp:
     def open_add_vehicle_window(self):
         self.vehicle_window = tk.Toplevel(self.root)
         self.vehicle_window.title("Добавить транспорт")
-        self.vehicle_window.configure(bg="#ADD8E6")  # Нежно-синий фон
+        self.vehicle_window.configure(bg="#ADD8E6")
 
         tk.Label(self.vehicle_window, text="Тип транспорта\n(самолет/поезд):", bg="#ADD8E6").pack()
         self.vehicle_type_entry = tk.Entry(self.vehicle_window)
@@ -234,43 +223,41 @@ class TransportApp:
         tk.Label(self.vehicle_window, text="Максимальная высота (если самолет):", bg="#ADD8E6").pack()
         self.max_altitude_entry = tk.Entry(self.vehicle_window)
         self.max_altitude_entry.pack()
-        self.max_altitude_entry.config(state='disabled')  # Отключаем по умолчанию
+        self.max_altitude_entry.config(state='disabled')  #отключено по умолчанию
 
         tk.Label(self.vehicle_window, text="Количество вагонов (если поезд):", bg="#ADD8E6").pack()
         self.number_of_cars_entry = tk.Entry(self.vehicle_window)
         self.number_of_cars_entry.pack()
-        self.number_of_cars_entry.config(state='disabled')  # Отключаем по умолчанию
+        self.number_of_cars_entry.config(state='disabled')  #отключено по умолчанию
 
         self.vehicle_type_entry.bind("<KeyRelease>", self.update_vehicle_fields_state)
-
         tk.Button(self.vehicle_window, text="Сохранить", command=self.add_vehicle).pack()
         tk.Button(self.vehicle_window, text="Закрыть", command=self.vehicle_window.destroy).pack()
 
     def update_vehicle_fields_state(self, event):
         vehicle_type = self.vehicle_type_entry.get().strip().lower()
         if vehicle_type == "самолет":
-            self.max_altitude_entry.config(state='normal')  # Включаем поле для высоты
-            self.number_of_cars_entry.config(state='disabled')  # Отключаем поле для вагонов
+            self.max_altitude_entry.config(state='normal')  #включаем поле для высоты
+            self.number_of_cars_entry.config(state='disabled')  #отключаем поле для вагонов
         elif vehicle_type == "поезд":
-            self.max_altitude_entry.config(state='disabled')  # Отключаем поле для высоты
-            self.number_of_cars_entry.config(state='normal')  # Включаем поле для вагонов
+            self.max_altitude_entry.config(state='disabled')  #отключаем поле для высоты
+            self.number_of_cars_entry.config(state='normal')  #включаем поле для вагонов
         else:
-            self.max_altitude_entry.config(state='disabled')  # Отключаем поле для высоты
-            self.number_of_cars_entry.config(state='disabled')  # Отключаем поле для вагонов
-
+            self.max_altitude_entry.config(state='disabled')  #отключаем поле для высоты
+            self.number_of_cars_entry.config(state='disabled')  #отключаем поле для вагонов
+    #окно для редактирования
     def open_edit_vehicle_window(self, event=None):
         selected_item = self.tree_vehicles.selection()
         if not selected_item:
             messagebox.showwarning("Предупреждение", "Выберите транспорт для редактирования")
             return
-
-        selected_vehicle_id = selected_item[0]
+        selected_vehicle_id = selected_item[0] #выбрано ли транпортное средство
         vehicle_data = self.tree_vehicles.item(selected_vehicle_id)["values"]
-
+        #старые данные из таблицы
         self.vehicle_window = tk.Toplevel(self.root)
         self.vehicle_window.title("Редактировать транспорт")
-        self.vehicle_window.configure(bg="#ADD8E6")  # Нежно-синий фон
-
+        self.vehicle_window.configure(bg="#ADD8E6")
+        #новое окно редактирования
         tk.Label(self.vehicle_window, text="Тип транспорта\n(самолет/поезд):", bg="#ADD8E6").pack()
         self.vehicle_type_entry = tk.Entry(self.vehicle_window)
         self.vehicle_type_entry.insert(0, vehicle_data[0])
@@ -288,7 +275,6 @@ class TransportApp:
             self.max_altitude_entry.config(state='normal')
         else:
             self.max_altitude_entry.config(state='disabled')
-
         tk.Label(self.vehicle_window, text="Количество вагонов (если поезд):", bg="#ADD8E6").pack()
         self.number_of_cars_entry = tk.Entry(self.vehicle_window)
         if vehicle_data[0].lower() == "поезд":
@@ -296,12 +282,12 @@ class TransportApp:
             self.number_of_cars_entry.config(state='normal')
         else:
             self.number_of_cars_entry.config(state='disabled')
-
+        #проверка какой тип транспорта
         self.vehicle_type_entry.bind("<KeyRelease>", self.update_vehicle_fields_state)
 
         tk.Button(self.vehicle_window, text="Сохранить", command=lambda: self.edit_vehicle(selected_vehicle_id)).pack()
         tk.Button(self.vehicle_window, text="Закрыть", command=self.vehicle_window.destroy).pack()
-
+    #новое крутое транспортное средство в компанию с лучшим названием Ветерок
     def add_vehicle(self):
         vehicle_type = self.vehicle_type_entry.get().strip().lower()
         if vehicle_type not in ["самолет", "поезд"]:
@@ -335,7 +321,7 @@ class TransportApp:
         self.update_vehicles()
         self.export_results()
         self.vehicle_window.destroy()
-
+    #редактирует выбранные транпорт из существующих
     def edit_vehicle(self, selected_vehicle_id):
         vehicle_type = self.vehicle_type_entry.get().strip().lower()
         if vehicle_type not in ["самолет", "поезд"]:
@@ -348,7 +334,6 @@ class TransportApp:
         except ValueError:
             messagebox.showerror("Ошибка", "Грузоподъемность должна быть положительным числом")
             return
-
         vehicle_index = self.tree_vehicles.index(selected_vehicle_id)
         if vehicle_type == "самолет":
             try:
@@ -366,12 +351,11 @@ class TransportApp:
                 messagebox.showerror("Ошибка", "Количество вагонов должно быть положительным целым числом")
                 return
             vehicle = Train(capacity, number_of_cars)
-
         self.company.vehicles[vehicle_index] = vehicle
         self.update_vehicles()
         self.export_results()
         self.vehicle_window.destroy()
-
+    #удаляет выбранный транспорт
     def delete_vehicle(self):
         selected_item = self.tree_vehicles.selection()
         if not selected_item:
@@ -386,14 +370,14 @@ class TransportApp:
             del self.company.vehicles[vehicle_index]
             self.update_vehicles()
             self.export_results()
-
+    #обнов таблицу клиентов
     def update_clients(self):
         for row in self.tree_clients.get_children():
             self.tree_clients.delete(row)
         for client in self.company.clients:
             self.tree_clients.insert("", "end",
                                      values=(client.name, client.cargo_weight, "да" if client.is_vip else "нет"))
-
+    #обнов таблицу транспорта
     def update_vehicles(self):
         for row in self.tree_vehicles.get_children():
             self.tree_vehicles.delete(row)
@@ -402,7 +386,7 @@ class TransportApp:
                 self.tree_vehicles.insert("", "end", values=("Самолет", vehicle.capacity))
             elif isinstance(vehicle, Train):
                 self.tree_vehicles.insert("", "end", values=("Поезд", vehicle.capacity))
-
+    #оптимизация грузов
     def optimize_cargo(self):
         self.company.optimize_cargo_distribution()
         self.status_bar.config(text="Грузы успешно распределены")
@@ -410,7 +394,7 @@ class TransportApp:
     def show_about(self):
         messagebox.showinfo("О программе: " "Транспортная Компания Ветерок",
                             "Лабораторная работа 12\nВариант: 5\nРазработчик: Насковец Милана")
-
+    #сохраняем в джисон
     def export_results(self):
         results = {
             "clients": [{"name": client.name, "weight": client.cargo_weight, "vip": client.is_vip} for client in
@@ -420,7 +404,7 @@ class TransportApp:
         with open("transport_results.json", "w") as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
         messagebox.showinfo("Экспорт результатов", "Результат успешно экспортирован")
-
+    #загрузка данных в джисон
     def load_data(self):
         try:
             with open("transport_results.json", "r") as f:
@@ -438,7 +422,7 @@ class TransportApp:
                     self.company.add_vehicle(vehicle)
         except FileNotFoundError:
             pass
-
+#запуск
 if __name__ == "__main__":
     root = tk.Tk()
     app = TransportApp(root)
